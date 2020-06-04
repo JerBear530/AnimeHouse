@@ -1,15 +1,16 @@
 # Anime House
 
-GraphqlTutorial
+Anime House
 
-## Getting Started
+## About Project
 
-This project is a starting point for a Flutter application.
+This project was for my computer networking class that allowed us to choose any networking topic.
+I decided to make an app the got data from an API, specefically the Kitsu API(JSON).
 
-A few resources to get you started if this is your first Flutter project:
+A few resources needed to understand the code are labeled below:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+- [Kitsu API: Understand how the API calls are made](https://kitsu.docs.apiary.io/)
+- [Shared Preferences: Learn how to store certain information in app](https://medium.com/flutterdevs/using-sharedpreferences-in-flutter-251755f07127)
 
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
