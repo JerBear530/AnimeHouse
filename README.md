@@ -1,6 +1,6 @@
-# graphqltutorial
+# animehousetutorial
 
-GraphqlTutorial
+Base code for Anime House
 
 ## Getting Started
 
