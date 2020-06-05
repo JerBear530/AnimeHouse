@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphqltutorial/bottom_navigation.dart';
 import 'home_page.dart';
 import 'splash.dart';
 import 'Login.dart';
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget{
   Widget build(BuildContext context) {
     // TODO: implement build
     final routes = <String, WidgetBuilder>{
+      "/bottom_navigation":(BuildContext context)=>bottomNavigation(),
       "/login":(BuildContext context)=>Login(),
       "/home_page":(BuildContext context)=>HomePage()
     };

@@ -93,7 +93,7 @@ class _LoginState extends State<Login> {
                             oauth2, _controller.text, _controller1.text).then((value) async{
                           _token=value.access_token;
                           await sharedPreferenceService.setToken(_token);
-                          Navigator.pushReplacementNamed(context, "/home_page");
+                          Navigator.pushReplacementNamed(context, "/bottom_navigation");
                           throw("Login Failed!");
                         });
 

@@ -12,7 +12,7 @@ class Splash extends StatelessWidget {
     if (_token == null || _token == "") {
       Navigator.of(context).pushReplacementNamed('/login');
     } else
-      Navigator.of(context).pushReplacementNamed('/home_page');
+      Navigator.of(context).pushReplacementNamed('/bottom_navigation');
   }
 
   @override
