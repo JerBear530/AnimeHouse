@@ -1,10 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import 'CoverImage.dart';
 import 'PosterImage.dart';
 import 'Titles.dart';
-
-
 part 'attributes.g.dart';
 
 @JsonSerializable()
