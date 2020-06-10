@@ -5,6 +5,7 @@ import 'package:graphqltutorial/bottom_navigation.dart';
 import 'home_page.dart';
 import 'splash.dart';
 import 'Login.dart';
+import 'anime_page.dart';
 
 
 void main() => runApp(MyApp());
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget{
     final routes = <String, WidgetBuilder>{
       "/bottom_navigation":(BuildContext context)=>bottomNavigation(),
       "/login":(BuildContext context)=>Login(),
-      "/home_page":(BuildContext context)=>HomePage()
+      "/home_page":(BuildContext context)=>HomePage(),
+      "/anime_page":(BuildContext context)=> AnimePage()
     };
 
     return MaterialApp(

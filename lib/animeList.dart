@@ -11,16 +11,17 @@ List<Widget> filteredAnimeList(PopularAnimeCollection animes,itemWidth){
 
     animeWidgets.add(
       Container(child: Column(
-        children: <Widget>[
-          ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
-            child: Image.network(animes.data[i].attributes.posterImage.small,
-              fit: BoxFit.fill,),
-          ),
-          Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
-            style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
-          )
-        ],
-      ),),
+          children: <Widget>[
+            ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
+              child: Image.network(animes.data[i].attributes.posterImage.small,
+                fit: BoxFit.fill,),
+            ),
+            Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
+              style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
+            )
+          ],
+        ),),
+
     );
   }
   return  animeWidgets;
@@ -33,17 +34,18 @@ List<Widget> allTimePopular(PopularAnimeCollection animes,double itemWidth){
   for (int i = 0; i<6;i++){
 
     animeWidgets.add(
-      Container(child: Column(
-        children: <Widget>[
-          ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
-            child: Image.network(animes.data[i].attributes.posterImage.small,
-              fit: BoxFit.fill,),
-          ),
-          Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
-            style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
-          )
-        ],
-      ),),
+       Container(child: Column(
+          children: <Widget>[
+            ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
+              child: Image.network(animes.data[i].attributes.posterImage.small,
+                fit: BoxFit.fill,),
+            ),
+            Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
+              style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
+            )
+          ],
+        ),),
+
     );
   }
   return  animeWidgets;

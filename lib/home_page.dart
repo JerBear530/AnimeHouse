@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphqltutorial/PopularAnimeCollection.dart';
+import 'package:graphqltutorial/anime_page.dart';
 import 'package:graphqltutorial/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+
 
 
 import 'animeList.dart';
@@ -36,13 +38,13 @@ Future<PopularAnimeCollection> fetchPopularAnime()async{
     return null;
   }
 }
-Future<PopularAnimeCollection> fetchFilteredAnime() async{
+Future<PopularAnimeCollection> fetchFilteredAnime(String season, String seasonYear) async{
 
   var queryParameters={
     'page[limit]':'6',
     'page[offset]':'0',
-    'filter[season]':'winter',
-    'filter[seasonYear]':'2017',
+    'filter[season]':season,
+    'filter[seasonYear]':seasonYear,
     'sort':'-userCount'
   };
 
@@ -79,15 +81,30 @@ class HomePage extends StatefulWidget{
 class _HomePage extends State<HomePage> {
 
   final Fluttertoast showToast = Fluttertoast();
+  final String seasonS='spring';
+  final String seasonS1='summer';
+  final String seasonF='fall';
+  final String seasonW='winter';
+
+
+
+  final String seasonYear='2019';
+
   Future<PopularAnimeCollection> popAnimes;
   Future<PopularAnimeCollection> filAnimes;
+  Future<PopularAnimeCollection> filAnimes1;
+  Future<PopularAnimeCollection> filAnimes2;
+  Future<PopularAnimeCollection> filAnimes3;
 
   @override
   void initState() {
     super.initState();
 
     popAnimes=getPopularAnime();
-    filAnimes=getFilteredAnime();
+    filAnimes=getFilteredAnime(seasonW,seasonYear);
+    filAnimes1=getFilteredAnime(seasonF,seasonYear);
+    filAnimes2=getFilteredAnime(seasonS1,seasonYear);
+    filAnimes3=getFilteredAnime(seasonS,seasonYear);
 
   }
 
@@ -116,7 +133,7 @@ class _HomePage extends State<HomePage> {
             body:
 
             FutureBuilder(
-                future: Future.wait([popAnimes,filAnimes]),
+                future: Future.wait([popAnimes,filAnimes,filAnimes1,filAnimes2,filAnimes3]),
                 builder: ( context,  AsyncSnapshot<List<dynamic>>snapshot) {
 
                   if (snapshot.hasData) {
@@ -124,6 +141,15 @@ class _HomePage extends State<HomePage> {
                     final double itemWidth = size.width / 3;
                     List<Widget> widgetList = allTimePopular(snapshot.data[0],itemWidth);
                     List<Widget> widgetList1 = filteredAnimeList(snapshot.data[1],itemWidth);
+                    List<Widget> widgetList2 = filteredAnimeList(snapshot.data[2], itemWidth);
+                    List<Widget> widgetList3 = filteredAnimeList(snapshot.data[3], itemWidth);
+                    List<Widget> widgetList4 = filteredAnimeList(snapshot.data[4], itemWidth);
+                    PopularAnimeCollection pop = snapshot.data[0];
+                    PopularAnimeCollection season1 = snapshot.data[1];
+                    PopularAnimeCollection season2 = snapshot.data[2];
+                    PopularAnimeCollection season3 = snapshot.data[3];
+                    PopularAnimeCollection season4 = snapshot.data[4];
+
                     return CustomScrollView(
                         slivers: <Widget>[
                           SliverToBoxAdapter(
@@ -143,7 +169,13 @@ class _HomePage extends State<HomePage> {
                           Container(
                             child: SliverGrid(
                                   delegate: SliverChildBuilderDelegate((context, index) {
-                                    return widgetList[index];
+                                    return GestureDetector(child: widgetList[index],onTap: (){Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => AnimePage(anime: pop.data[index])
+                                        )
+
+                                    );},);
                                   }, childCount: widgetList.length),
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     childAspectRatio: (itemWidth/itemHeight),
@@ -180,7 +212,15 @@ class _HomePage extends State<HomePage> {
                           Container(
                             child: SliverGrid(
                                 delegate: SliverChildBuilderDelegate((context, index) {
-                                  return widgetList1[index];
+                                  return GestureDetector(child: widgetList1[index],onTap: (){
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => AnimePage(anime: season1.data[index])
+                                        )
+
+                                    );
+                                  },);
                                 }, childCount: widgetList1.length),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   childAspectRatio: (itemWidth/itemHeight),
@@ -189,7 +229,133 @@ class _HomePage extends State<HomePage> {
                                   crossAxisSpacing: 10,
                                 )
                             ),
+                          ),
+
+
+                          SliverFixedExtentList(
+                            itemExtent: 20, delegate: SliverChildListDelegate([
+                            Container(color: Color(0xFFD0021B),)
+                          ]),
+                          ),
+
+
+
+                          SliverToBoxAdapter(
+                            child: Container(
+
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text('Winter 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Container(
+                            child: SliverGrid(
+                                delegate: SliverChildBuilderDelegate((context, index) {
+                                  return GestureDetector(child: widgetList2[index],onTap:(){Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AnimePage(anime: season2.data[index])
+                                      )
+
+                                  );});
+                                }, childCount: widgetList2.length),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  childAspectRatio: (itemWidth/itemHeight),
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 10,
+                                  crossAxisSpacing: 10,
+                                )
+                            ),
+                          ),
+
+                          SliverFixedExtentList(
+                            itemExtent: 20, delegate: SliverChildListDelegate([
+                            Container(color: Color(0xFFD0021B),)
+                          ]),
+                          ),
+
+
+
+                          SliverToBoxAdapter(
+                            child: Container(
+
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text('Fall 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Container(
+                            child: SliverGrid(
+                                delegate: SliverChildBuilderDelegate((context, index) {
+                                  return GestureDetector(child: widgetList3[index],onTap:(){Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AnimePage(anime: season3.data[index])
+                                      )
+
+                                  );});
+                                }, childCount: widgetList3.length),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  childAspectRatio: (itemWidth/itemHeight),
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 10,
+                                  crossAxisSpacing: 10,
+                                )
+                            ),
+                          ),
+
+                          SliverFixedExtentList(
+                            itemExtent: 20, delegate: SliverChildListDelegate([
+                            Container(color: Color(0xFFD0021B),)
+                          ]),
+                          ),
+
+
+
+                          SliverToBoxAdapter(
+                            child: Container(
+
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Text('Summer 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Container(
+                            child: SliverGrid(
+                                delegate: SliverChildBuilderDelegate((context, index) {
+                                  return GestureDetector(child: widgetList4[index],onTap:(){Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                      builder: (context) => AnimePage(anime: season4.data[index])
+                                      )
+
+                                  );
+                                  }
+                                  );
+
+                                }, childCount: widgetList4.length),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  childAspectRatio: (itemWidth/itemHeight),
+                                  crossAxisCount: 3,
+                                  mainAxisSpacing: 10,
+                                  crossAxisSpacing: 10,
+                                )
+                            ),
                           )
+
+
                         ]
                     );
                   }
@@ -211,8 +377,8 @@ class _HomePage extends State<HomePage> {
     return animes;
   }
 
-  Future<PopularAnimeCollection>getFilteredAnime()async{
-    final animes = await fetchFilteredAnime();
+  Future<PopularAnimeCollection>getFilteredAnime(String season,String seasonYear)async{
+    final animes = await fetchFilteredAnime(season,seasonYear);
     return animes;
   }
 
