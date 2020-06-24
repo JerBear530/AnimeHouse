@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "755873339093",
+    "firebase_url": "https://animehouse.firebaseio.com",
+    "project_id": "animehouse",
+    "storage_bucket": "animehouse.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:755873339093:android:f6ad8eed985f762bfff45c",
+        "android_client_info": {
+          "package_name": "com.example.graphqltutorial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "755873339093-s8qhhs3vjl2pp2pl3m934uo5qc68i995.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOHZ7uXAGtiroP6i6D0qfMwztwu_dH83c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "755873339093-s8qhhs3vjl2pp2pl3m934uo5qc68i995.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

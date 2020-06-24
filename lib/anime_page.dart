@@ -11,6 +11,10 @@ class AnimePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    Size screenSize = MediaQuery.of(context).size;
+    Container followingButton;
+
     return Scaffold(
       body: Text(anime.attributes.canonicalTitle, style: TextStyle(fontSize: 20),),
 

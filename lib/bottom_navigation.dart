@@ -3,6 +3,7 @@ import 'home_page.dart';
 import 'package:graphqltutorial/search.dart';
 import 'library.dart';
 import 'search.dart';
+import 'profile_page.dart';
 
 class bottomNavigation extends StatefulWidget{
   bottomNavigation({Key key}) : super (key:key);
@@ -18,6 +19,7 @@ class _bottomNavigation extends State<bottomNavigation>{
     HomePage(),
     search(),
     myLibrary(),
+    Profile()
 
 
   ];
@@ -35,14 +37,17 @@ class _bottomNavigation extends State<bottomNavigation>{
             },
 
             items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home),
-                  title: Text("Home")),
+              BottomNavigationBarItem(icon: Icon(Icons.home,color: Colors.redAccent,),
+                  title: Text("Home",style: TextStyle(color: Colors.redAccent))),
 
-              BottomNavigationBarItem(icon: Icon(Icons.search),
-                  title: Text("Search")),
+              BottomNavigationBarItem(icon: Icon(Icons.search,color: Colors.redAccent),
+                  title: Text("Search",style: TextStyle(color: Colors.redAccent))),
 
-              BottomNavigationBarItem(icon: Icon(Icons.library_add),
-                  title: Text("Library")),
+              BottomNavigationBarItem(icon: Icon(Icons.library_add,color: Colors.redAccent),
+                  title: Text("Library",style: TextStyle(color: Colors.redAccent))),
+
+              BottomNavigationBarItem(icon: Icon(Icons.face,color: Colors.redAccent),
+                  title: Text("Profile",style: TextStyle(color: Colors.redAccent),)),
             ]
         )
 
