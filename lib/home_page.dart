@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphqltutorial/PopularAnimeCollection.dart';
 import 'package:graphqltutorial/anime_page.dart';
+import 'package:graphqltutorial/services/auth.dart';
 import 'package:graphqltutorial/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
@@ -80,6 +81,8 @@ class HomePage extends StatefulWidget{
 }
 class _HomePage extends State<HomePage> {
 
+  final AuthService _auth = AuthService();
+
   final Fluttertoast showToast = Fluttertoast();
   final String seasonS='spring';
   final String seasonS1='summer';
@@ -122,8 +125,9 @@ class _HomePage extends State<HomePage> {
 
               actions: <Widget>[
                 IconButton(icon: Icon(Icons.exit_to_app,color: Color(0xFFD0021B)), onPressed: () async {
-                  await sharedPreferenceService.clearToken();
-                  Navigator.pushReplacementNamed(context, "/login");
+                  await _auth.signOut();
+                  //sharedPreferenceService.clearToken();
+                  //Navigator.pushReplacementNamed(context, "/login");
                 },)
               ],
 
