@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphqltutorial/PopularAnimeCollection.dart';
@@ -8,7 +7,6 @@ import 'package:graphqltutorial/services/auth.dart';
 import 'package:graphqltutorial/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
-
 
 
 import 'animeList.dart';
@@ -115,13 +113,14 @@ class _HomePage extends State<HomePage> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
         home: Scaffold(
             appBar: AppBar(
               title: Image.asset('assets/images/AppBarLogo.png',height: 50,width: 50,),
-              backgroundColor: Colors.white,
+              backgroundColor: Color(0xffedf1f5),
 
               actions: <Widget>[
                 IconButton(icon: Icon(Icons.exit_to_app,color: Color(0xFFD0021B)), onPressed: () async {
@@ -133,7 +132,7 @@ class _HomePage extends State<HomePage> {
 
             ),
 
-            backgroundColor: Colors.white,
+            backgroundColor: Color(0xff6C7476),
             body:
 
             FutureBuilder(
@@ -141,13 +140,13 @@ class _HomePage extends State<HomePage> {
                 builder: ( context,  AsyncSnapshot<List<dynamic>>snapshot) {
 
                   if (snapshot.hasData) {
-                    final double itemHeight= (size.height - kToolbarHeight - 24) / 3;
+                    final double itemHeight= (size.height - kToolbarHeight-24) /3;
                     final double itemWidth = size.width / 3;
                     List<Widget> widgetList = allTimePopular(snapshot.data[0],itemWidth);
-                    List<Widget> widgetList1 = filteredAnimeList(snapshot.data[1],itemWidth);
-                    List<Widget> widgetList2 = filteredAnimeList(snapshot.data[2], itemWidth);
-                    List<Widget> widgetList3 = filteredAnimeList(snapshot.data[3], itemWidth);
-                    List<Widget> widgetList4 = filteredAnimeList(snapshot.data[4], itemWidth);
+                    List<Widget> widgetList1 = filteredAnimeList(snapshot.data[1],itemWidth,itemHeight/3);
+                    List<Widget> widgetList2 = filteredAnimeList(snapshot.data[2], itemWidth,itemHeight/3);
+                    List<Widget> widgetList3 = filteredAnimeList(snapshot.data[3], itemWidth,itemHeight/3);
+                    List<Widget> widgetList4 = filteredAnimeList(snapshot.data[4], itemWidth,itemHeight/3);
                     PopularAnimeCollection pop = snapshot.data[0];
                     PopularAnimeCollection season1 = snapshot.data[1];
                     PopularAnimeCollection season2 = snapshot.data[2];
@@ -158,12 +157,12 @@ class _HomePage extends State<HomePage> {
                         slivers: <Widget>[
                           SliverToBoxAdapter(
                             child: Container(
-                              color: Colors.white,
+                              color:  Color(0xff6C7476),
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: <Widget>[
                                   Text('All Time Popular', style: TextStyle(
-                                      fontSize: 20, color: Colors.black),),
+                                      fontSize: 20, color: Colors.white),),
 
                                 ],
                               ),
@@ -182,7 +181,7 @@ class _HomePage extends State<HomePage> {
                                     );},);
                                   }, childCount: widgetList.length),
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    childAspectRatio: (itemWidth/itemHeight),
+                                    childAspectRatio: (2/3.5),
                                     crossAxisCount: 3,
                                     mainAxisSpacing: 10,
                                     crossAxisSpacing: 10,
@@ -207,7 +206,7 @@ class _HomePage extends State<HomePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: <Widget>[
-                                  Text('Winter 2017', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                  Text('Winter 2017', style: TextStyle(fontSize: 20, color: Colors.white),),
                                 ],
                               ),
                             ),
@@ -227,7 +226,7 @@ class _HomePage extends State<HomePage> {
                                   },);
                                 }, childCount: widgetList1.length),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (itemWidth/itemHeight),
+                                  childAspectRatio: (2/3.5),
                                   crossAxisCount: 3,
                                   mainAxisSpacing: 10,
                                   crossAxisSpacing: 10,
@@ -250,7 +249,7 @@ class _HomePage extends State<HomePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: <Widget>[
-                                  Text('Winter 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                  Text('Winter 2019', style: TextStyle(fontSize: 20, color: Colors.white),),
                                 ],
                               ),
                             ),
@@ -268,7 +267,7 @@ class _HomePage extends State<HomePage> {
                                   );});
                                 }, childCount: widgetList2.length),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (itemWidth/itemHeight),
+                                  childAspectRatio: (2/3.5),
                                   crossAxisCount: 3,
                                   mainAxisSpacing: 10,
                                   crossAxisSpacing: 10,
@@ -290,7 +289,7 @@ class _HomePage extends State<HomePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: <Widget>[
-                                  Text('Fall 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                  Text('Fall 2019', style: TextStyle(fontSize: 20, color:Colors.white),),
                                 ],
                               ),
                             ),
@@ -308,7 +307,7 @@ class _HomePage extends State<HomePage> {
                                   );});
                                 }, childCount: widgetList3.length),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (itemWidth/itemHeight),
+                                  childAspectRatio: (2/3.5),
                                   crossAxisCount: 3,
                                   mainAxisSpacing: 10,
                                   crossAxisSpacing: 10,
@@ -330,7 +329,7 @@ class _HomePage extends State<HomePage> {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: <Widget>[
-                                  Text('Summer 2019', style: TextStyle(fontSize: 20, color: Colors.black),),
+                                  Text('Summer 2019', style: TextStyle(fontSize: 20, color: Colors.white),),
                                 ],
                               ),
                             ),
@@ -351,7 +350,7 @@ class _HomePage extends State<HomePage> {
 
                                 }, childCount: widgetList4.length),
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (itemWidth/itemHeight),
+                                  childAspectRatio: (2/3.5),
                                   crossAxisCount: 3,
                                   mainAxisSpacing: 10,
                                   crossAxisSpacing: 10,

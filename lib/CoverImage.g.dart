@@ -10,6 +10,7 @@ CoverImage _$CoverImageFromJson(Map<String, dynamic> json) {
   return CoverImage(
     small: json['small'] as String,
     large: json['large'] as String,
+    original: json['original'] as String,
   );
 }
 
@@ -17,4 +18,5 @@ Map<String, dynamic> _$CoverImageToJson(CoverImage instance) =>
     <String, dynamic>{
       'small': instance.small,
       'large': instance.large,
+      'original': instance.original,
     };

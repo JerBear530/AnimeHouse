@@ -5,7 +5,8 @@ part 'CoverImage.g.dart';
   class CoverImage{
     String small;
     String large;
-      CoverImage({this.small,this.large});
+    String original;
+      CoverImage({this.small,this.large,this.original});
       factory CoverImage.fromJson(Map<String,dynamic>json)=> _$CoverImageFromJson(json);
       Map<String,dynamic> toJson()=>_$CoverImageToJson(this);
 

@@ -21,7 +21,18 @@ Attributes _$AttributesFromJson(Map<String, dynamic> json) {
         ? null
         : CoverImage.fromJson(json['coverImage'] as Map<String, dynamic>),
     canonicalTitle: json['canonicalTitle'] as String,
-  )..averageRating = json['averageRating'] as String;
+    averageRating: json['averageRating'] as String,
+    ageRating: json['ageRating'] as String,
+    endDate: json['endDate'] as String,
+    episodeCount: json['episodeCount'] as int,
+    episodeLength: json['episodeLength'] as int,
+    favoritesCount: json['favoritesCount'] as int,
+    popularityRank: json['popularityRank'] as int,
+    showType: json['showType'] as String,
+    startDate: json['startDate'] as String,
+    status: json['status'] as String,
+    youtubeVideoId: json['youtubeVideoId'] as String,
+  );
 }
 
 Map<String, dynamic> _$AttributesToJson(Attributes instance) =>
@@ -31,6 +42,16 @@ Map<String, dynamic> _$AttributesToJson(Attributes instance) =>
       'updatedAt': instance.updatedAt,
       'slug': instance.slug,
       'canonicalTitle': instance.canonicalTitle,
+      'episodeLength': instance.episodeLength,
+      'favoritesCount': instance.favoritesCount,
+      'popularityRank': instance.popularityRank,
+      'ageRating': instance.ageRating,
+      'status': instance.status,
+      'startDate': instance.startDate,
+      'endDate': instance.endDate,
+      'youtubeVideoId': instance.youtubeVideoId,
+      'showType': instance.showType,
+      'episodeCount': instance.episodeCount,
       'titles': instance.titles,
       'posterImage': instance.posterImage,
       'coverImage': instance.coverImage,

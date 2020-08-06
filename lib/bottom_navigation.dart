@@ -28,6 +28,9 @@ class _bottomNavigation extends State<bottomNavigation>{
     return  Scaffold(
         body: _pageOptions[_selectedPage],
         bottomNavigationBar: BottomNavigationBar(
+          fixedColor: Color(0xFFD0021B),
+          unselectedItemColor: Colors.white,
+            backgroundColor: Color(0xffedf1f5),
 
             currentIndex: _selectedPage,
             onTap: (int index){
@@ -37,17 +40,17 @@ class _bottomNavigation extends State<bottomNavigation>{
             },
 
             items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home,color: Colors.redAccent,),
-                  title: Text("Home",style: TextStyle(color: Colors.redAccent))),
+              BottomNavigationBarItem(icon: Icon(Icons.home,color: Color(0xFFD0021B),),
+                  title: Text("Home",style: TextStyle(color:  Color(0xFFD0021B)))),
 
-              BottomNavigationBarItem(icon: Icon(Icons.search,color: Colors.redAccent),
-                  title: Text("Search",style: TextStyle(color: Colors.redAccent))),
+              BottomNavigationBarItem(icon: Icon(Icons.search,color:  Color(0xFFD0021B)),
+                  title: Text("Search",style: TextStyle(color:  Color(0xFFD0021B)))),
 
-              BottomNavigationBarItem(icon: Icon(Icons.library_add,color: Colors.redAccent),
-                  title: Text("Library",style: TextStyle(color: Colors.redAccent))),
+              BottomNavigationBarItem(icon: Icon(Icons.library_add,color: Color(0xFFD0021B)),
+                  title: Text("Library",style: TextStyle(color: Color(0xFFD0021B)))),
 
-              BottomNavigationBarItem(icon: Icon(Icons.face,color: Colors.redAccent),
-                  title: Text("Profile",style: TextStyle(color: Colors.redAccent),)),
+              BottomNavigationBarItem(icon: Icon(Icons.face,color:  Color(0xFFD0021B)),
+                  title: Text("Profile",style: TextStyle(color:  Color(0xFFD0021B)),)),
             ]
         )
 

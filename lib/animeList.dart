@@ -3,11 +3,12 @@ import 'PopularAnimeCollection.dart';
 import 'package:flutter/material.dart';
 
 
-List<Widget> filteredAnimeList(PopularAnimeCollection animes,itemWidth){
+List<Widget> filteredAnimeList(PopularAnimeCollection animes,double itemWidth,double itemHeight){
 
   List<Widget> animeWidgets = [];
 
   for (int i = 0; i<animes.data.length;i++){
+    String animeTitle= paddingRight(animes.data[i].attributes.canonicalTitle);
 
     animeWidgets.add(
       Container(child: Column(
@@ -16,9 +17,10 @@ List<Widget> filteredAnimeList(PopularAnimeCollection animes,itemWidth){
               child: Image.network(animes.data[i].attributes.posterImage.small,
                 fit: BoxFit.fill,),
             ),
-            Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
+            Flexible(fit: FlexFit.loose,
+                child:Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animeTitle,
               style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
-            )
+            ))
           ],
         ),),
 
@@ -32,6 +34,7 @@ List<Widget> allTimePopular(PopularAnimeCollection animes,double itemWidth){
   List<Widget> animeWidgets = [];
 
   for (int i = 0; i<6;i++){
+    String animeTitle= paddingRight(animes.data[i].attributes.canonicalTitle);
 
     animeWidgets.add(
        Container(child: Column(
@@ -40,7 +43,7 @@ List<Widget> allTimePopular(PopularAnimeCollection animes,double itemWidth){
               child: Image.network(animes.data[i].attributes.posterImage.small,
                 fit: BoxFit.fill,),
             ),
-            Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animes.data[i].attributes.canonicalTitle,
+            Container(color:Color(0xffedf1f5),width:itemWidth,height:30,child: Text(animeTitle,
               style: TextStyle(fontSize: 10,color: Colors.black,),textAlign: TextAlign.center,)
             )
           ],
@@ -49,4 +52,16 @@ List<Widget> allTimePopular(PopularAnimeCollection animes,double itemWidth){
     );
   }
   return  animeWidgets;
+}
+
+String paddingRight(String animeName){
+
+  if(animeName.length > 37){
+    String newName;
+    newName = animeName.substring(0,37)+"...";
+    return newName;
+  }
+
+  return animeName;
+
 }
