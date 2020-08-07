@@ -8,6 +8,7 @@ part of 'attributes.dart';
 
 Attributes _$AttributesFromJson(Map<String, dynamic> json) {
   return Attributes(
+    synopsis: json['synopsis'] as String,
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
     slug: json['slug'] as String,
@@ -51,6 +52,7 @@ Map<String, dynamic> _$AttributesToJson(Attributes instance) =>
       'endDate': instance.endDate,
       'youtubeVideoId': instance.youtubeVideoId,
       'showType': instance.showType,
+      'synopsis': instance.synopsis,
       'episodeCount': instance.episodeCount,
       'titles': instance.titles,
       'posterImage': instance.posterImage,
