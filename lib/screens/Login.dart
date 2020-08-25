@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:graphqltutorial/shared_preferences_service.dart';
-import 'LoginModel.dart';
+import 'file:///C:/Users/rober/AndroidStudioProjects/graphqltutorial/lib/services/shared_preferences_service.dart';
+import '../models/LoginModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';

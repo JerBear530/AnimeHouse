@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:graphqltutorial/PopularAnimeCollection.dart';
-import 'package:graphqltutorial/anime_page.dart';
+import 'package:graphqltutorial/models/PopularAnimeCollection.dart';
+import 'package:graphqltutorial/screens/anime_page.dart';
 import 'package:graphqltutorial/services/auth.dart';
-import 'package:graphqltutorial/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 
 
-import 'animeList.dart';
+import '../shared/animeList.dart';
 
 
 Future<PopularAnimeCollection> fetchPopularAnime()async{

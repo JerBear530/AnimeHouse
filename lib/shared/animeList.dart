@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'PopularAnimeCollection.dart';
+import '../models/PopularAnimeCollection.dart';
 import 'package:flutter/material.dart';
 
 

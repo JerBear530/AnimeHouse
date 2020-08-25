@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'file:///C:/Users/rober/AndroidStudioProjects/graphqltutorial/lib/models/Anime.dart';
 import 'package:graphqltutorial/models/user.dart';
+import 'package:graphqltutorial/services/database.dart';
 
 
 class AuthService{
@@ -55,6 +57,21 @@ Future signInAnon() async{
     try{
       AuthResult result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       FirebaseUser user = result.user;
+
+
+
+      //create a new document for the user with the uid
+      DatabaseService databaseStuff = DatabaseService(uid: user.uid);
+      await databaseStuff.updateUserData("", "", "");
+
+      List<Anime> completedList=[];
+      List<Anime> watchingList=[];
+      List<Anime> droppedList=[];
+      List<Anime> wantToWatchList=[];
+      List<Anime> onHoldList=[];
+
+      await databaseStuff.createLibrary(completedList, watchingList, droppedList, wantToWatchList, onHoldList);
+
       return _userFromFirebaseUser(user);
     }catch(e){
 

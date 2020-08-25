@@ -4,7 +4,7 @@ import 'package:graphqltutorial/models/user.dart';
 import 'package:graphqltutorial/screens/authenticate/authenticate.dart';
 import 'package:graphqltutorial/screens/authenticate/register.dart';
 import 'package:provider/provider.dart';
-import '../home_page.dart';
+import 'home_page.dart';
 
 
 class Wrapper extends StatelessWidget{

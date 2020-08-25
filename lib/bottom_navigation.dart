@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
-import 'package:graphqltutorial/search.dart';
-import 'library.dart';
-import 'search.dart';
-import 'profile_page.dart';
+import 'screens/home_page.dart';
+import 'screens/library.dart';
+import 'screens/search.dart';
+import 'screens/profile_page.dart';
 
 class bottomNavigation extends StatefulWidget{
   bottomNavigation({Key key}) : super (key:key);

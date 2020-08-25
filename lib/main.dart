@@ -9,10 +9,10 @@ import 'package:graphqltutorial/screens/wrapper.dart';
 import 'package:graphqltutorial/services/auth.dart';
 import 'package:graphqltutorial/screens/authenticate/authenticate.dart';
 import 'package:provider/provider.dart';
-import 'home_page.dart';
+import 'screens/home_page.dart';
 import 'splash.dart';
-import 'Login.dart';
-import 'anime_page.dart';
+import 'screens/Login.dart';
+import 'screens/anime_page.dart';
 
 
 void main() => runApp(MyApp());

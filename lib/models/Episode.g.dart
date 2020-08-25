@@ -1,22 +1,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'Anime.dart';
+part of 'Episode.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Anime _$AnimeFromJson(Map<String, dynamic> json) {
-  return Anime(
+Episode _$EpisodeFromJson(Map<String, dynamic> json) {
+  return Episode(
     id: json['id'] as String,
     type: json['type'] as String,
     attributes: json['attributes'] == null
         ? null
-        : Attributes.fromJson(json['attributes'] as Map<String, dynamic>),
+        : EpisodeAttributes.fromJson(
+            json['attributes'] as Map<String, dynamic>),
   );
 }
 
-Map<String, dynamic> _$AnimeToJson(Anime instance) => <String, dynamic>{
+Map<String, dynamic> _$EpisodeToJson(Episode instance) => <String, dynamic>{
       'id': instance.id,
       'type': instance.type,
       'attributes': instance.attributes,
