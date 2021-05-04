@@ -12,10 +12,14 @@ EpisodeData _$EpisodeDataFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : Episode.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    links: json['links'] == null
+        ? null
+        : EpisodePagnationLinks.fromJson(json['links'] as Map<String, dynamic>),
   );
 }
 
 Map<String, dynamic> _$EpisodeDataToJson(EpisodeData instance) =>
     <String, dynamic>{
       'data': instance.data,
+      'links': instance.links,
     };

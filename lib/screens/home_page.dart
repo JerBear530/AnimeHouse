@@ -1,71 +1,18 @@
-import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphqltutorial/models/Anime.dart';
 import 'package:graphqltutorial/models/PopularAnimeCollection.dart';
 import 'package:graphqltutorial/screens/anime_page.dart';
+import 'package:graphqltutorial/screens/search.dart';
 import 'package:graphqltutorial/services/auth.dart';
-import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
-
-
+import 'package:graphqltutorial/home_page_network_calls.dart';
+import 'package:graphqltutorial/shared/home_page_shared.dart';
 import '../shared/animeList.dart';
 
 
-Future<PopularAnimeCollection> fetchPopularAnime()async{
 
-  var queryParameters={
-    'page[limit]':'6',
-    'sort':'-userCount'
-  };
-  var uri= Uri.https('www.kitsu.io', '/api/edge/trending/anime',queryParameters);
-  final response =
-  await http.get(uri);
-
-  if (response.statusCode == 200){
-    print("We got the popular anime!");
-    return PopularAnimeCollection.fromJson(json.decode(response.body));
-  }
-  else{
-    print("This is the status code:" + response.statusCode.toString());
-    Fluttertoast.showToast(
-        msg: "Error when fetching popular data",
-        toastLength: Toast.LENGTH_LONG,
-        backgroundColor: Colors.white,
-        textColor: Color(0xFF305F72)
-    );
-    return null;
-  }
-}
-Future<PopularAnimeCollection> fetchFilteredAnime(String season, String seasonYear) async{
-
-  var queryParameters={
-    'page[limit]':'6',
-    'page[offset]':'0',
-    'filter[season]':season,
-    'filter[seasonYear]':seasonYear,
-    'sort':'-userCount'
-  };
-
-  var uri= Uri.https('www.kitsu.io', '/api/edge/anime',queryParameters);
-  final response = await http.get(uri);
-
-    if (response.statusCode == 200){
-      print("We got the data");
-      var jso=json.decode(response.body);
-      return PopularAnimeCollection.fromJson(json.decode(response.body));
-    }
-
-    else{
-      print("This is the status code:" + response.statusCode.toString());
-      Fluttertoast.showToast(
-      msg: "Error when logging in",
-      toastLength: Toast.LENGTH_SHORT,
-      backgroundColor: Color(0xFF305F72),
-      textColor: Colors.white
-      );
-      return null;
-    }
-}
 
 
 //void main() => runApp(HomePage());
@@ -81,30 +28,20 @@ class _HomePage extends State<HomePage> {
   final AuthService _auth = AuthService();
 
   final Fluttertoast showToast = Fluttertoast();
-  final String seasonS='spring';
-  final String seasonS1='summer';
-  final String seasonF='fall';
-  final String seasonW='winter';
 
 
+  List<Widget> mostPopularList;
+  List<Widget> currentAnimeList;
+  List<Widget> previousAnimeList;
+  List<Widget> ballIsLifeList;
+  List<Widget> netflixList;
 
-  final String seasonYear='2019';
 
-  Future<PopularAnimeCollection> popAnimes;
-  Future<PopularAnimeCollection> filAnimes;
-  Future<PopularAnimeCollection> filAnimes1;
-  Future<PopularAnimeCollection> filAnimes2;
-  Future<PopularAnimeCollection> filAnimes3;
 
   @override
   void initState() {
     super.initState();
 
-    popAnimes=getPopularAnime();
-    filAnimes=getFilteredAnime(seasonW,seasonYear);
-    filAnimes1=getFilteredAnime(seasonF,seasonYear);
-    filAnimes2=getFilteredAnime(seasonS1,seasonYear);
-    filAnimes3=getFilteredAnime(seasonS,seasonYear);
 
   }
 
@@ -117,9 +54,17 @@ class _HomePage extends State<HomePage> {
       debugShowCheckedModeBanner: false,
 
         home: Scaffold(
+          backgroundColor: Color(0xff6C7476),
             appBar: AppBar(
-              title: Image.asset('assets/images/AppBarLogo.png',height: 50,width: 50,),
-              backgroundColor: Color(0xffedf1f5),
+              backgroundColor: Color(0xffEDF1F5),
+              centerTitle: true,
+              title: const Text('HOME',style: TextStyle(color: Color(0xffD0021B),fontSize: 24,fontWeight: FontWeight.bold),),
+              leading:  Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset('assets/images/AppBarLogo.png',  ),
+
+              ),
+
 
               actions: <Widget>[
                 IconButton(icon: Icon(Icons.exit_to_app,color: Color(0xFFD0021B)), onPressed: () async {
@@ -131,290 +76,327 @@ class _HomePage extends State<HomePage> {
 
             ),
 
-            backgroundColor: Color(0xff6C7476),
-            body:
+          body: FutureBuilder(
+            future: Future.wait([getPopularAnime(),getCurrentSeasonAnime('fall', '2019'),getSeasonedAnime('summer', '2019'),getNetflixAnime(),getSportsAnime()]),
+            builder: (context,AsyncSnapshot<List<PopularAnimeCollection>>snapshot){
 
-            FutureBuilder(
-                future: Future.wait([popAnimes,filAnimes,filAnimes1,filAnimes2,filAnimes3]),
-                builder: ( context,  AsyncSnapshot<List<dynamic>>snapshot) {
+              if(snapshot.hasData){
+                final double animeHeight = (MediaQuery.of(context).size.height/4);
 
-                  if (snapshot.hasData) {
-                    final double itemHeight= (size.height - kToolbarHeight-24) /3;
-                    final double itemWidth = size.width / 3;
-                    List<Widget> widgetList = allTimePopular(snapshot.data[0],itemWidth);
-                    List<Widget> widgetList1 = filteredAnimeList(snapshot.data[1],itemWidth,itemHeight/3);
-                    List<Widget> widgetList2 = filteredAnimeList(snapshot.data[2], itemWidth,itemHeight/3);
-                    List<Widget> widgetList3 = filteredAnimeList(snapshot.data[3], itemWidth,itemHeight/3);
-                    List<Widget> widgetList4 = filteredAnimeList(snapshot.data[4], itemWidth,itemHeight/3);
-                    PopularAnimeCollection pop = snapshot.data[0];
-                    PopularAnimeCollection season1 = snapshot.data[1];
-                    PopularAnimeCollection season2 = snapshot.data[2];
-                    PopularAnimeCollection season3 = snapshot.data[3];
-                    PopularAnimeCollection season4 = snapshot.data[4];
+                mostPopularList=rowCreator(snapshot.data[0], MediaQuery.of(context).size.width/3,animeHeight);
+                currentAnimeList=rowCreator(snapshot.data[1], MediaQuery.of(context).size.width/3, animeHeight);
+                previousAnimeList=rowCreator(snapshot.data[2], MediaQuery.of(context).size.width/3, animeHeight);
+                netflixList=rowCreator(snapshot.data[3], MediaQuery.of(context).size.width/3, animeHeight);
+                ballIsLifeList=rowCreator(snapshot.data[4], MediaQuery.of(context).size.width/3, animeHeight);
 
-                    return CustomScrollView(
-                        slivers: <Widget>[
-                          SliverToBoxAdapter(
-                            child: Container(
-                              color:  Color(0xff6C7476),
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text('All Time Popular', style: TextStyle(
-                                      fontSize: 20, color: Colors.white),),
 
-                                ],
-                              ),
-                            ),
-                          ),
 
-                          Container(
-                            child: SliverGrid(
-                                  delegate: SliverChildBuilderDelegate((context, index) {
-                                    return GestureDetector(child: widgetList[index],onTap: (){Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => AnimePage(anime: pop.data[index])
-                                        )
+                   // Navigator.push(context,MaterialPageRoute(builder: (context)=>AnimePage(anime: snapshot.data[0].data[i],)) );},child: mostPopularList[i]);
 
-                                    );},);
-                                  }, childCount: widgetList.length),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    childAspectRatio: (2/3.5),
-                                    crossAxisCount: 3,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                  )
-                              ),
-                          ),
+
+                return animePageUI(snapshot.data[0], snapshot.data[1], snapshot.data[2],snapshot.data[3],snapshot.data[4], MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+              }
+
+              else if(snapshot.hasError){
+
+                return Text("${snapshot.error}");
+              }
+
+              return Center(child: CircularProgressIndicator(),);
+
+            }
 
 
 
 
-                          SliverFixedExtentList(
-                            itemExtent: 20, delegate: SliverChildListDelegate([
-                            Container(color: Color(0xFFD0021B),)
-                          ]),
-                          ),
+          ),
+    ));
+  }
+
+  SingleChildScrollView animePageUI(PopularAnimeCollection popularAnime, PopularAnimeCollection currentSeason,PopularAnimeCollection previousSeason,PopularAnimeCollection netflixAnime,PopularAnimeCollection sportsAnime,double widthOfScreen,double heightOfScreen){
+
+    final double showCasedImageContainerHeight = (MediaQuery.of(context).size.height/1.5);
+    final double showCasedTitleBottomPosition =((MediaQuery.of(context).size.height/1.5)/2);
+    final double showCasedTitleContainerWidth =( MediaQuery.of(context).size.width*3/4);
+    final double positionLeft = 15;
+    final double showCaseSynopBottomPosition = ((MediaQuery.of(context).size.height/1.5)/3.5);
+    final double showCaseSynopWidth = (MediaQuery.of(context).size.width-30);
+    final double detailsButtonBottomPosition = ((MediaQuery.of(context).size.height/1.5)/11);
+    final double detailsButtonLeftPosition= (MediaQuery.of(context).size.width/4);
+    final double detailsButtonContainerWidth = (MediaQuery.of(context).size.width/2);
+    final double rowHeight =  ((MediaQuery.of(context).size.height/4)+46);
 
 
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(children: <Widget>[
+        Stack(
+          children: <Widget>[
+            Container(height: showCasedImageContainerHeight, width: widthOfScreen,
+              child: Opacity(opacity: 0.5,
+                  child: Image.network( popularAnime.data[0].attributes.posterImage.small, fit: BoxFit.cover)
+              ),
+            ),
 
-                          SliverToBoxAdapter(
-                            child: Container(
+            Positioned(bottom: showCasedTitleBottomPosition, left: positionLeft ,
+                child: Container(width: showCasedTitleContainerWidth,
+                    child: Text( popularAnime.data[0].attributes.slug.toUpperCase(), style: showCasedTitleStroke,)
+                )
+            ),
 
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text('Winter 2017', style: TextStyle(fontSize: 20, color: Colors.white),),
-                                ],
-                              ),
-                            ),
-                          ),
+            Positioned(bottom: showCasedTitleBottomPosition, left: positionLeft , child: Container(width: showCasedTitleContainerWidth,child: Text(popularAnime.data[0].attributes.slug.toUpperCase(), style: showCasedTitle,))),
 
-                          Container(
-                            child: SliverGrid(
-                                delegate: SliverChildBuilderDelegate((context, index) {
-                                  return GestureDetector(child: widgetList1[index],onTap: (){
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => AnimePage(anime: season1.data[index])
-                                        )
-
-                                    );
-                                  },);
-                                }, childCount: widgetList1.length),
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (2/3.5),
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                )
-                            ),
-                          ),
+            Positioned(bottom: showCaseSynopBottomPosition, left: positionLeft, child: Container(width: showCaseSynopWidth,child: Text(popularAnime.data[0].attributes.synopsis,overflow: TextOverflow.ellipsis,maxLines: 4,style: synopsisStyle))),
 
 
-                          SliverFixedExtentList(
-                            itemExtent: 20, delegate: SliverChildListDelegate([
-                            Container(color: Color(0xFFD0021B),)
-                          ]),
-                          ),
+            Positioned(
+                bottom: detailsButtonBottomPosition, left: detailsButtonLeftPosition,
+                child: GestureDetector(
+                    child:Container(width: detailsButtonContainerWidth, decoration: buttonDecortation,
+                        child: Center(
+                            child: Padding(padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                              child: seeDetailsText,
+                            )
+                        )
+                    )
+                )
+            )
+
+          ],
+        ),
 
 
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0,20,0,0),
+          child: Container( width: widthOfScreen, decoration: pageContainerDecoration,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(15,15,8,4),
+                    child: mostPopularText
+                ),
 
-                          SliverToBoxAdapter(
-                            child: Container(
+                SizedBox(height: rowHeight,
+                  child: ListView.builder(shrinkWrap: true, scrollDirection: Axis.horizontal, itemCount: popularAnime.data.length , itemBuilder: (context,index){
+                    return mostPopularList[index];
+                  }),
+                ),
 
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text('Winter 2019', style: TextStyle(fontSize: 20, color: Colors.white),),
-                                ],
-                              ),
-                            ),
-                          ),
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(15,15,8,4),
+                    child: summer2020Text
+                ),
 
-                          Container(
-                            child: SliverGrid(
-                                delegate: SliverChildBuilderDelegate((context, index) {
-                                  return GestureDetector(child: widgetList2[index],onTap:(){Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => AnimePage(anime: season2.data[index])
-                                      )
+                SizedBox(height: rowHeight,
+                  child: ListView.builder(shrinkWrap: true, scrollDirection: Axis.horizontal, itemCount: currentSeason.data.length , itemBuilder: (context,index){
+                    return currentAnimeList[index];
+                  }),
+                ),
+                Container(height: 15,),
 
-                                  );});
-                                }, childCount: widgetList2.length),
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (2/3.5),
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                )
-                            ),
-                          ),
+                Center(
+                  child: Stack(children: [
+                    Container(color: Color(0xFFD0021B),width:(MediaQuery.of(context).size.width-20), height:200,),
+                    Container(width:(MediaQuery.of(context).size.width-20),child: Image.network(currentSeason.data[0].attributes.coverImage.large,)),
+                    Positioned(bottom:  5,right:MediaQuery.of(context).size.width/1.5,child: Container( width: MediaQuery.of(context).size.width/4,height:MediaQuery.of(context).size.height/5 ,child: Image.network(currentSeason.data[0].attributes.posterImage.small))),
+                    Positioned(bottom: 80,right:0, child: Container(width:(MediaQuery.of(context).size.width-20)/1.45,child: Text(currentSeason.data[0].attributes.slug.toUpperCase().replaceAll('-', ' '),style: TextStyle(fontSize: 20,color: Colors.white),overflow: TextOverflow.ellipsis,))),
+                    Positioned(bottom: 27,right:0, child: Container(width:(MediaQuery.of(context).size.width-20)/1.45,child: Text(currentSeason.data[0].attributes.synopsis,style: TextStyle(fontSize: 10,color: Colors.white),overflow: TextOverflow.ellipsis,maxLines: 4,))),
 
-                          SliverFixedExtentList(
-                            itemExtent: 20, delegate: SliverChildListDelegate([
-                            Container(color: Color(0xFFD0021B),)
-                          ]),
-                          ),
+                  ],),
+                ),
+                Container(height: 15,),
 
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(15,15,8,4),
+                    child: netflixAndChillText
+                ),
 
+                SizedBox(height: rowHeight,
+                  child: ListView.builder(shrinkWrap: true, scrollDirection: Axis.horizontal, itemCount: netflixAnime.data.length , itemBuilder: (context,index){
+                    return netflixList[index];
+                  }),
+                ),
 
-                          SliverToBoxAdapter(
-                            child: Container(
+                Container(height: 15,),
+                Center(
+                  child: Stack(children: [
+                    Container(color: Color(0xFFD0021B),width:(MediaQuery.of(context).size.width-20), height:200,),
+                    Container(width:(MediaQuery.of(context).size.width-20),child: Image.network(previousSeason.data[0].attributes.coverImage.large,)),
+                    Positioned(bottom:  5,right:MediaQuery.of(context).size.width/1.5,child: Container( width: MediaQuery.of(context).size.width/4,height:MediaQuery.of(context).size.height/5 ,child: Image.network(previousSeason.data[0].attributes.posterImage.small))),
+                    Positioned(bottom: 80,right:0, child: Container(width:(MediaQuery.of(context).size.width-20)/1.45,child: Text(previousSeason.data[0].attributes.slug.toUpperCase().replaceAll('-', ' '),style: TextStyle(fontSize: 20,color: Colors.white),overflow: TextOverflow.ellipsis,))),
+                    Positioned(bottom: 27,right:0, child: Container(width:(MediaQuery.of(context).size.width-20)/1.45,child: Text(previousSeason.data[0].attributes.synopsis,style: TextStyle(fontSize: 10,color: Colors.white),overflow: TextOverflow.ellipsis,maxLines: 4,))),
 
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text('Fall 2019', style: TextStyle(fontSize: 20, color:Colors.white),),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          Container(
-                            child: SliverGrid(
-                                delegate: SliverChildBuilderDelegate((context, index) {
-                                  return GestureDetector(child: widgetList3[index],onTap:(){Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => AnimePage(anime: season3.data[index])
-                                      )
-
-                                  );});
-                                }, childCount: widgetList3.length),
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (2/3.5),
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                )
-                            ),
-                          ),
-
-                          SliverFixedExtentList(
-                            itemExtent: 20, delegate: SliverChildListDelegate([
-                            Container(color: Color(0xFFD0021B),)
-                          ]),
-                          ),
+                  ],),
+                ),
 
 
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(15,15,8,4),
+                    child: ballIsLifeText
+                ),
 
-                          SliverToBoxAdapter(
-                            child: Container(
+                SizedBox(height: rowHeight,
+                  child: ListView.builder(shrinkWrap: true, scrollDirection: Axis.horizontal, itemCount: netflixAnime.data.length , itemBuilder: (context,index){
+                    return ballIsLifeList[index];
+                  }),
+                ),
 
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: <Widget>[
-                                  Text('Summer 2019', style: TextStyle(fontSize: 20, color: Colors.white),),
-                                ],
-                              ),
-                            ),
-                          ),
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(15,15,8,4),
+                    child: previousAnimeText
+                ),
 
-                          Container(
-                            child: SliverGrid(
-                                delegate: SliverChildBuilderDelegate((context, index) {
-                                  return GestureDetector(child: widgetList4[index],onTap:(){Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                      builder: (context) => AnimePage(anime: season4.data[index])
-                                      )
+                SizedBox(height: rowHeight,
+                  child: ListView.builder(shrinkWrap: true, scrollDirection: Axis.horizontal, itemCount: netflixAnime.data.length , itemBuilder: (context,index){
+                    return previousAnimeList[index];
+                  }),
+                ),
 
-                                  );
-                                  }
-                                  );
-
-                                }, childCount: widgetList4.length),
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: (2/3.5),
-                                  crossAxisCount: 3,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                )
-                            ),
-                          )
-
-
-                        ]
-                    );
-                  }
-
-                  else if (snapshot.hasError) {
-                    return Text("${snapshot.error}");
-                  }
-
-                  return Center(child: CircularProgressIndicator());
-                })
-
+                Container(height: 15),
+                Center(child: Text('You have reached the end of the feed.',style: TextStyle(fontSize: 15,color: Colors.black,fontWeight: FontWeight.bold),),),
+                Container(height: 10),
+                Center(
+                  child: RaisedButton(color: Color(0xFFD0021B),onPressed:() {Navigator.push(context,MaterialPageRoute(builder: (context)=>search()));},child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('VIEW ALL',style: TextStyle(color: Colors.white,fontSize: 15),),
+                  ),),
+                ),
+                Container(height: 20),
+              ],
+            ),),
         )
+      ]),
+    );
+
+
+
+
+
+  }
+
+  Widget firstInRow(double itemWidth, double animeHeight, Anime anime){
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 4, 0, 8),
+      child: GestureDetector(onTap:(){
+        Navigator.push(context,MaterialPageRoute(builder: (context)=>AnimePage(anime: anime,)) );
+      },
+        child: Container(child: Column(
+          children: <Widget>[
+            Container( width: itemWidth,height: animeHeight,decoration: BoxDecoration(border: Border.all(color: Color(0xffD0021B),width: 1.5),borderRadius: BorderRadius.only(topRight: Radius.circular(8.0),topLeft: Radius.circular(8.0)) ),
+              child: ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
+                child: Image.network(anime.attributes.posterImage.medium,
+                  fit: BoxFit.fill,),
+              ),
+            ),
+            Container(color:Color(0xffD0021B),width:itemWidth,height:30,child: Center(
+              child: Text(anime.attributes.slug,overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10,color: Colors.white,),textAlign: TextAlign.center,),
+            )
+            )
+          ],
+        ),),
+      ),
     );
   }
 
+  Widget lastInRow(double itemWidth, double animeHeight, Anime anime){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(3, 4, 10, 8),
+      child: GestureDetector(
+        onTap:(){
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>AnimePage(anime: anime,)) );
+          },
+        child: Container(child: Column(
+          children: <Widget>[
+            Container( width: itemWidth,height: animeHeight,decoration: BoxDecoration(border: Border.all(color: Color(0xffD0021B),width: 1.5),borderRadius: BorderRadius.only(topRight: Radius.circular(8.0),topLeft: Radius.circular(8.0)) ),
+              child: ClipRRect(borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0),topRight: Radius.circular(8.0)),
+                child: Image.network(anime.attributes.posterImage.medium,
+                  fit: BoxFit.fill,),
+              ),
+            ),
+            Container(color:Color(0xffD0021B),width:itemWidth,height:30,child: Center(
+              child: Text(anime.attributes.slug,overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 10,color: Colors.white,),textAlign: TextAlign.center,),
+            )
+            )
+          ],
+        ),),
+      ),
+    );
 
-  Future<PopularAnimeCollection> getPopularAnime()async{
-   final animes = await fetchPopularAnime();
-    return animes;
+
+
   }
 
-  Future<PopularAnimeCollection>getFilteredAnime(String season,String seasonYear)async{
-    final animes = await fetchFilteredAnime(season,seasonYear);
-    return animes;
+  Widget middleOfRow(double itemWidth, double animeHeight, Anime anime){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(3, 4, 0, 8),
+      child: GestureDetector(
+        onTap:(){
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>AnimePage(anime: anime,)) );
+        },
+        child: Container(child: Column(
+          children: <Widget>[
+            Container(width: itemWidth,
+              height: animeHeight,
+              decoration: BoxDecoration(
+                  border: Border.all(color: Color(0xffD0021B), width: 1.5),
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(8.0),
+                      topLeft: Radius.circular(8.0))),
+              child: ClipRRect(borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.0),
+                  topRight: Radius.circular(8.0)),
+                child: Image.network(
+                    anime.attributes.posterImage.medium,
+                    fit: BoxFit.fill),
+              ),
+            ),
+            Container(color: Color(0xffD0021B),
+                width: itemWidth,
+                height: 30,
+                child: Center(
+                  child: Text(anime.attributes.slug,overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 10, color: Colors.white,),
+                    textAlign: TextAlign.center,),
+                )
+            )
+          ],
+        ),),
+      ),
+    );
+
   }
 
-  Future<PopularAnimeCollection> resourceOwnerPasswordGrant(String authorizationEndpoint ,String oauth
-      ) async {
+  List<Widget> rowCreator(PopularAnimeCollection animes,double itemWidth,double animeHeight){
 
+    List<Widget> animeWidgets = [];
 
-
-    var queryParameters = {
-      'filter[season]': 'winter',
-      'filter[seasonYear]': '2017',
-
-    };
-
-    var headers = <String, String>{
-      'Accept': 'application/vnd.api+json',
-    };
-    var uri =Uri.https(authorizationEndpoint, oauth,queryParameters);
-    print(uri.toString());
-    final http.Response response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      return PopularAnimeCollection.fromJson(json.decode(response.body));
-    } else {
-      print("This is the status code:" + response.statusCode.toString());
-      Fluttertoast.showToast(
-          msg: "Error when logging in",
-          toastLength: Toast.LENGTH_SHORT,
-          backgroundColor: Color(0xFF305F72),
-          textColor: Colors.white
-      );
-      return null;
+    for (int i = 0; i<animes.data.length;i++){
+      if(i==0){
+        animeWidgets.add(
+            firstInRow(itemWidth, animeHeight,animes.data[i])
+        );
+      }
+      else if(i==animes.data.length-1){
+        animeWidgets.add(
+            lastInRow(itemWidth, animeHeight, animes.data[i])
+        );
+      }
+      else {
+        animeWidgets.add(
+            middleOfRow(itemWidth, animeHeight,animes.data[i])
+        );
+      }
     }
+    return  animeWidgets;
   }
+
+
+
+
+
 }
 
 

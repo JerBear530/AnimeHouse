@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:graphqltutorial/models/PosterImage.dart';
 import 'package:intl/intl.dart';
 import '../models/EpisodeData.dart';
 import '../models/dataStreaming.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -69,12 +71,27 @@ import '../models/dataStreaming.dart';
 
     }
 
-    Container posterImageContainer(double PosterImageContainerHeight,double PosterImageContainerWidth, String posterImageLink){
+    Container posterImageContainer(double PosterImageContainerHeight,double PosterImageContainerWidth, PosterImage posterImageLink){
+      if(posterImageLink==null || posterImageLink.medium==null){
+        return   Container(
+            height:PosterImageContainerHeight,
+            width:PosterImageContainerWidth,
+            decoration:BoxDecoration(
+                image: DecorationImage(image: Image.asset('"assets/images/GOMENASAI.jpg').image,fit:BoxFit.contain,),
+                border: Border.all(color: Color(0xffD0021B), width: 2.0,),
+                color: Color(0xffEDF1F5),
+                borderRadius: BorderRadius.all(const Radius.circular(50))
+            )
+        );
+
+      }
+
+
       return  Container(
         height:PosterImageContainerHeight,
         width:PosterImageContainerWidth,
         decoration:BoxDecoration(
-            image: DecorationImage(image: NetworkImage(posterImageLink),fit:BoxFit.contain,),
+            image: DecorationImage(image: NetworkImage(posterImageLink.medium),fit:BoxFit.contain,),
             border: Border.all(color: Color(0xffD0021B), width: 2.0,),
             color: Color(0xffEDF1F5),
             borderRadius: BorderRadius.all(const Radius.circular(50))
@@ -214,10 +231,17 @@ import '../models/dataStreaming.dart';
    Column datesColumn(String date, double WidthofScreen,String AirorEnd) {
      return Column(
        children: <Widget>[
-         Container(padding: EdgeInsets.all(6.0), width: WidthofScreen / 2.5, decoration: BoxDecoration(
+         Container(padding: EdgeInsets.all(6.0), width: WidthofScreen / 2.3, decoration: BoxDecoration(
            color: Color(0xffEDF1F5),
            borderRadius: BorderRadius.all(Radius.circular(20)),
            border: Border.all(color: Color(0xffD0021B)),
+             boxShadow: [
+               BoxShadow( color: Colors.black.withOpacity(0.3),
+                 spreadRadius: 3,
+                 blurRadius: 2,
+                 offset: Offset(0, 3),
+
+               )]
          ),
            child: Text(convertDate(date),
              style: GoogleFonts.roboto(color: Colors.black,
@@ -225,9 +249,12 @@ import '../models/dataStreaming.dart';
                  fontWeight: FontWeight.w900), textAlign: TextAlign.center,),
 
          ),
-         Text(AirorEnd, style: GoogleFonts.roboto(
-             color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-           textAlign: TextAlign.center,)
+         Padding(
+           padding: const EdgeInsets.all(8.0),
+           child: Text(AirorEnd, style: GoogleFonts.roboto(
+               color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+             textAlign: TextAlign.center,),
+         )
        ],
      );
    }
@@ -245,17 +272,30 @@ import '../models/dataStreaming.dart';
     }
 
 List<Widget> createRows(EpisodeData episodeData){
+
+
   List<Widget> episodes = List<Widget>();
   for(int i =0; i<episodeData.data.length;i++){
+    if(episodeData.data[i].attributes.thumbnail==null){
+      episodes.clear();
+      break;
+    }
     episodes.add(
         Stack( children: <Widget>[
-          Container(width: 160,height: 150,
+          Container(width: 120,height: 90,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(const Radius.circular(0)),
+              borderRadius: BorderRadius.all(const Radius.circular(5)),
+                boxShadow: [
+                  BoxShadow( color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 3,
+                    blurRadius: 2,
+                    offset: Offset(0, 3),
+
+                  )],
               image: DecorationImage(image: NetworkImage(episodeData.data[i].attributes.thumbnail.original),fit:BoxFit.fill,),
             ),
           ),
-          Positioned( left:5, bottom: 25, child: Text("S"+ episodeData.data[i].attributes.seasonNumber.toString()+ ": E"+episodeData.data[i].attributes.number.toString(), style: TextStyle(color: Colors.white),))]
+          Positioned( left:5, top: 5, child: Text("S"+ episodeData.data[i].attributes.seasonNumber.toString()+ ": E"+episodeData.data[i].attributes.number.toString(), style: TextStyle(color: Colors.white),))]
         ));
 
 
@@ -270,17 +310,16 @@ List<Widget> createColumns(StreamingData stream){
   List<Widget> banners= List<Widget>();
 
   if(stream.data.length==0){
-    banners.add(Container(child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(child: Text('Sorry there are no streams available for this anime'),),
-    ),));
     return banners;
   }
   else {
     for (int i = 0; i < stream.data.length; i++) {
       if (stream.data[i].attributes.url.contains('hulu')) {
         print('hulu');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+          },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(width: 100,height: 100,
@@ -304,7 +343,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('funimation')) {
         print('funimation');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -330,7 +372,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('crunchyroll')) {
         print('crunchyroll');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -355,7 +400,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('tubitv')) {
         print('tubitv');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -379,7 +427,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('netflix')) {
         print('netflix');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -403,7 +454,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('amazon')) {
         print('amazon');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -428,7 +482,10 @@ List<Widget> createColumns(StreamingData stream){
       }
       else if (stream.data[i].attributes.url.contains('vrv')) {
         print('vrv');
-        banners.add(InkWell(onTap: () {},
+        banners.add(InkWell(onTap: ()
+        {
+          _launchURL(stream.data[i].attributes.url);
+        },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Container(width: 100,height: 100,
@@ -461,4 +518,12 @@ List<Widget> createColumns(StreamingData stream){
 
 
 }
+
+  _launchURL(String url) async{
+      if(await canLaunch(url)){
+        await launch(url);
+      } else{
+        throw 'Could not launch $url';
+      }
+  }
 

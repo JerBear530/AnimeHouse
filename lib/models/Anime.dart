@@ -1,6 +1,5 @@
 import 'Links.dart';
 import 'attributes.dart';
-import 'package:graphqltutorial/models/WatchingList.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'Relationships.dart';
 part 'Anime.g.dart';

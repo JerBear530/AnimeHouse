@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:graphqltutorial/models/CoverImage.dart';
 import 'package:graphqltutorial/models/EpisodeData.dart';
+import 'package:graphqltutorial/models/SingleAnimeCollection.dart';
 import 'package:graphqltutorial/models/dataStreaming.dart';
 import 'package:provider/provider.dart';
 import '../models/Anime.dart';
@@ -15,7 +17,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class AnimePage extends StatefulWidget{
-  final Anime anime;
+   final Anime anime;
 
   const AnimePage({Key key, @required this.anime}) : super(key: key);
 
@@ -32,6 +34,8 @@ class _AnimePage extends State<AnimePage> {
   List<String> originalList;
   String dropdownValue;
   bool listFlag;
+  Future<SingleAnimeCollection> _futureAnime;
+
 
 
 
@@ -45,6 +49,7 @@ class _AnimePage extends State<AnimePage> {
     dropDownList();
     listIconChange();
     favoritesIconChange();
+    _futureAnime =  fetchAnimeData();
 
 
 
@@ -72,13 +77,7 @@ class _AnimePage extends State<AnimePage> {
 
   @override
   Widget build(BuildContext context) {
-    final WidthOfScreen = MediaQuery.of(context).size.width;
-    //final HeightOfScreen =  MediaQuery.of(context).size.height;
-    final CoverImageConatinerHeight = MediaQuery.of(context).size.height/4;
-    final CoverImageContainerWidth = MediaQuery.of(context).size.width;
-    final PosterImageContainerPositionLeft =  (MediaQuery.of(context).size.width/2)-((MediaQuery.of(context).size.width/3)/2);
-    final PosterImageContainerHeight = MediaQuery.of(context).size.height/4;
-    final PosterImageContainerWidth = MediaQuery.of(context).size.width/3;
+
     final user = Provider.of<User>(context);
 
 
@@ -102,30 +101,27 @@ class _AnimePage extends State<AnimePage> {
 
     }
 
+    return
 
-
-
-
-print(widget.anime.relationships.streamingLinks.links.related);
-    //print(widget.anime.links.self);
-
-    return Scaffold(
+      Scaffold(
       backgroundColor: Color(0xff6C7476),
         floatingActionButton:Column(mainAxisAlignment: MainAxisAlignment.end,children: <Widget>[
           FloatingActionButton(child: addToListIcon,backgroundColor: Color(0xffEDF1F5),shape: CircleBorder(side: BorderSide(color: Color(0xffD0021B))), heroTag: null,onPressed: () {
             _showSettingsPanel();
+            listIconChange();
 
            setState(() {
-             listIconChange();
+
            });
 
 
     }),
           FloatingActionButton(child: favorited, heroTag: null,backgroundColor: Color(0xffEDF1F5),shape: CircleBorder(side: BorderSide(color: Color(0xffD0021B))),onPressed: (){
-            favoritesIconChange();
-            setState(() {
+            widget.anime.favorited=!widget.anime.favorited;
 
-              widget.anime.favorited=!widget.anime.favorited;
+            setState(() {
+              favoritesIconChange();
+
             });
 
 
@@ -134,208 +130,303 @@ print(widget.anime.relationships.streamingLinks.links.related);
 
         ],),
 
-        body:
+        body:   FutureBuilder<SingleAnimeCollection>(
+            future: fetchAnimeData(),
+            builder: (BuildContext context, AsyncSnapshot<SingleAnimeCollection> snapshot){
+              if(snapshot.hasData){
+                print('has data');
 
+                return AnimePageUI(snapshot.data.data);
+              }
+              else if (snapshot.hasError) {
+                print("${snapshot.error}");
+                return Center(child: Text("${snapshot.error}"));
+              }
+              return CircularProgressIndicator();
+            }
 
-        SingleChildScrollView(
-          child: Column(children: <Widget>[
-
-            Stack(children: <Widget>[
-
-              //CoverImage of Anime
-              coverImageContainer(CoverImageConatinerHeight, CoverImageContainerWidth, coverImage()),
-
-              //PosterImage of Anime
-              Positioned(left: PosterImageContainerPositionLeft, bottom:-(CoverImageConatinerHeight/3),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    child: Center(
-                        child:posterImageContainer(PosterImageContainerHeight, PosterImageContainerWidth, widget.anime.attributes.posterImage.small)
-                    ),
-                  ),
-                ))
-            ], overflow: Overflow.visible),
-
-             //Title Of Anime
-             Padding(
-               padding: const EdgeInsets.fromLTRB(0,55,0,0),
-               child: animeTitleContainer(widget.anime.attributes.canonicalTitle, WidthOfScreen),
-             ),
-
-            extraInfo(widget.anime.attributes.showType,widget.anime.attributes.ageRating,widget.anime.attributes.status,widget.anime.attributes.favoritesCount),
-
-
-            //seperation container from minor info
-            Container(width: WidthOfScreen,height: 20,),
-            //dropdown(WidthOfScreen),
-            Container(width: WidthOfScreen,height: 20,),
-
-            //Ratings,Dates,Synopsis, and Trailer Info
-            Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Color(0xffEDF1F5),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20)),
-                  border: Border.all(color: Color(0xffD0021B), width: 2.0,),
-                  boxShadow: [
-                    BoxShadow( color: Colors.black.withOpacity(0.5),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3),
-
-                    )]
-              ),
-
-
-              child: Column(children: <Widget>[
-
-                Row(mainAxisAlignment: MainAxisAlignment.center ,children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(double.parse(widget.anime.attributes.averageRating).round()), Colors.green, "Viewer Rating"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(widget.anime.attributes.popularityRank), Color(0xff029FD0), "Popularity Rank"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(widget.anime.attributes.episodeCount), Color(0xffD0AF02), "Episode Count"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(6.0),
-                    child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(widget.anime.attributes.episodeLength), Color(0xffD0021B), "Episode Length"),
-                  ),
-
-                ],),
-
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0,15,0,15),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center ,children: <Widget>[
-
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0,0,5,0),
-                      child: datesColumn(widget.anime.attributes.startDate,WidthOfScreen,"Air Date"),
-                    ),
-
-
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(5,0,0,0),
-                      child: datesColumn(widget.anime.attributes.endDate,WidthOfScreen,"End Date")
-                    ),
-
-                  ],),
-                ),
-
-                Container(width: MediaQuery.of(context).size.width,height: 1 ,color:Color(0xffD0021B),),
-
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: getSynopsisContainer(widget.anime.attributes.synopsis),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Text('Stream Here'),
-                ),
-
-                FutureBuilder<List<Widget>>(
-                  future:returnColumns(),
-                  builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot){
-                    if(snapshot.hasData){
-                      return ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: snapshot.data.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return snapshot.data[index];
-                          }
-                      );
-                    }
-                    else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
-                    }
-                    return CircularProgressIndicator();
-                  }
-
-                ),
-
-                FutureBuilder<List<Widget>>(
-                    future:returnRows(),
-                    builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot){
-                      if(snapshot.hasData){
-                        return SizedBox(height: 150,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemCount: snapshot.data.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return snapshot.data[index];
-                              }
-                          ),
-                        );
-                      }
-                      else if (snapshot.hasError) {
-                        return Text("${snapshot.error}");
-                      }
-                      return CircularProgressIndicator();
-                    }
-
-                ),
-
-
-
-
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0,75,0,10),
-                  child: Container(width: MediaQuery.of(context).size.width,height: 1 ,color:Color(0xffD0021B),),
-                ),
-
-
-
-
-
-
-
-              ],),
-            )
-          ]),
         ),
 
-    );
+      );
+
   }
 
 
 
-  Future <List<Widget>> returnColumns() async{
+  AnimePageUI(Anime anime){
 
-    StreamingData streaming= await fetchStreamingData();
+    final WidthOfScreen = MediaQuery.of(context).size.width;
+    final CoverImageConatinerHeight = MediaQuery.of(context).size.height/4;
+    final CoverImageContainerWidth = MediaQuery.of(context).size.width;
+    final PosterImageContainerPositionLeft =  (MediaQuery.of(context).size.width/2)-((MediaQuery.of(context).size.width/3)/2);
+    final PosterImageContainerHeight = MediaQuery.of(context).size.height/4;
+    final PosterImageContainerWidth = MediaQuery.of(context).size.width/3;
+
+
+    return SingleChildScrollView(scrollDirection: Axis.vertical,
+      child: Column(children: <Widget>[
+
+        Stack(children: <Widget>[
+
+          //CoverImage of Anime
+          coverImageContainer(CoverImageConatinerHeight, CoverImageContainerWidth, coverImage(anime.attributes.coverImage)),
+
+          //PosterImage of Anime
+          Positioned(left: PosterImageContainerPositionLeft, bottom:-(CoverImageConatinerHeight/3),
+              child: Center(
+                  child:posterImageContainer(PosterImageContainerHeight, PosterImageContainerWidth, anime.attributes.posterImage)
+              ))
+        ], overflow: Overflow.visible),
+
+        //Title Of Anime
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0,55,0,0),
+          child: animeTitleContainer(anime.attributes.canonicalTitle, WidthOfScreen),
+        ),
+
+        extraInfo(anime.attributes.showType,anime.attributes.ageRating,anime.attributes.status,anime.attributes.favoritesCount),
+
+
+        //seperation container from minor info
+        Container(width: WidthOfScreen,height: 20,),
+        //dropdown(WidthOfScreen),
+        Container(width: WidthOfScreen,height: 20,),
+
+        //Ratings,Dates,Synopsis, and Trailer Info
+        Container(
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              color: Color(0xffEDF1F5),
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20)),
+              border: Border.all(color: Color(0xffD0021B), width: 2.0,),
+              boxShadow: [
+                BoxShadow( color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+
+                )]
+          ),
+
+
+          child: Column(children: <Widget>[
+
+            Row(mainAxisAlignment: MainAxisAlignment.center ,children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(double.parse(anime.attributes.averageRating).round()), Colors.green, "Viewer Rating"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(anime.attributes.popularityRank), Color(0xff029FD0), "Popularity Rank"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(anime.attributes.episodeCount), Color(0xffD0AF02), "Episode Count"),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: RatingCircles(WidthOfScreen, WidthOfScreen, episodeCount(anime.attributes.episodeLength), Color(0xffD0021B), "Episode Length"),
+              ),
+
+            ],),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0,15,0,15),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center ,children: <Widget>[
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0,0,5,0),
+                  child: datesColumn(anime.attributes.startDate,WidthOfScreen,"Air Date"),
+                ),
+
+
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(5,0,0,0),
+                    child: datesColumn(anime.attributes.endDate,WidthOfScreen,"End Date")
+                ),
+
+              ],),
+            ),
+
+            Container(width: MediaQuery.of(context).size.width,height: 2 ,color:Color(0xffD0021B),),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(5.0,15,5.0,15.0),
+              child: getSynopsisContainer(anime.attributes.synopsis),
+            ),
+
+
+            FutureBuilder<List<Widget>>(
+                future:returnRows(anime.attributes.showType,anime.relationships.episodes.links.related),
+                builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot){
+                  if(snapshot.hasData){
+                    print('we got episode data inside snapshot');
+                    if(snapshot.data.length==1 || snapshot.data.length==0){
+                      return Container(height: 10);
+                    }
+                    else {
+                      return episodeList(snapshot.data);
+                    }
+                  }
+                  else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return CircularProgressIndicator();
+                }
+            ),
+
+            FutureBuilder<List<Widget>>(
+                future: returnColumns(anime.relationships.streamingLinks.links.related),
+                builder: (BuildContext context, AsyncSnapshot<List<Widget>> snapshot){
+                  if(snapshot.hasData){
+                    if(snapshot.data.isEmpty){
+                      return Container(height: 10);
+                    }
+                    return streamsList(snapshot.data);
+                  }
+                  else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return CircularProgressIndicator();
+                }
+
+            ),
+
+
+            Container(height: 30,)
+
+          ],),
+        )
+      ]),
+    );
+
+
+  }
+
+  Column episodeList(List<Widget> episodes){
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0,8,0,0),
+          child: Container(height: 2,width: MediaQuery.of(context).size.width, color: Color(0xffD0021B)),
+        ),
+        Container(height: 10),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline ,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('Episodes', style: TextStyle(color: Color(0xffD0021B), fontSize: 24),),
+            ),
+            Spacer(flex: 2,),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('View All',style: TextStyle(color: Colors.black,fontSize: 18, decoration: TextDecoration.underline),),
+            )
+          ]),
+
+        Container(height: 10,),
+      
+
+        SizedBox(height: 95,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: episodes.length,
+          itemBuilder: (context,index){
+            return episodes[index];
+          },
+          separatorBuilder: (context,index){
+            return Container(width: 10,);
+
+          },
+        ),),
+
+      /*SizedBox(height: 150,
+        child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemCount:episodes.length,
+            itemBuilder: (BuildContext context, int index) {
+              return episodes[index];
+            }),
+      ),*/
+
+    ],);
+  }
+
+  Column streamsList(List<Widget> streams){
+    return Column( crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(height:2,color: Color(0xffD0021B),),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8.0,8.0,8.0,0),
+          child: Text('Stream Here!',style: TextStyle(color: Color(0xffD0021B), fontSize: 24,),),
+        ),
+        ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: streams.length,
+            itemBuilder: (BuildContext context, int index) {
+              return streams[index];
+            }),
+      ],
+    );
+
+  }
+
+
+
+  Future <List<Widget>> returnColumns(String streamingLink) async{
+
+    StreamingData streaming= await fetchStreamingData(streamingLink);
     return createColumns(streaming);
   }
 
-  Future <List<Widget>> returnRows()async{
-    if(widget.anime.attributes.showType=='movie'){
-      return null;
+  Future <List<Widget>> returnRows(String showType,String episodeLink)async{
+    List<Widget> contain= List<Widget>();
+    if(showType=='movie'){
+      print('SHOW TYPE IS MOVIE...RETURNING EMPTY LIST');
+
+      contain.add(Container(height: 15,));
+      return contain ;
     }
-    EpisodeData episodes= await fetchEpisodeData();
-    print(episodes.data[1].attributes.thumbnail.original);
+    EpisodeData episodes= await fetchEpisodeData(episodeLink);
+    //print(episodes.data[1].attributes.thumbnail.original);
     return createRows(episodes);
 
   }
 
-  Future<EpisodeData> fetchEpisodeData() async{
+  Future<SingleAnimeCollection> fetchAnimeData() async{
+    http.Response response = await http.get('https://kitsu.io/api/edge/anime/'+widget.anime.id);
+
+    if(response.statusCode==200){
+      print(response.body);
+      return SingleAnimeCollection.fromJson(json.decode(response.body));
+    }
+    else{
+      throw Exception('Failed to get anime data');
+    }
+  }
+
+  Future<EpisodeData> fetchEpisodeData(String EpisodeLink) async{
   http.Response response;
 
-  if(widget.anime.relationships.episodes.links.related.contains("kitsu.io/api/edge")) {
+  if( EpisodeLink.contains("kitsu.io/api/edge")) {
 
-    response = await http.get(widget.anime.relationships.episodes.links.related);
+    response = await http.get( EpisodeLink);
 
   }
   else {
 
-    response = await http.get("https://kitsu.io/api/edge" + widget.anime.relationships.episodes.links.related);
+    response = await http.get("https://kitsu.io/api/edge"+EpisodeLink);
   }
 
   if(response.statusCode ==200){
@@ -352,18 +443,20 @@ print(widget.anime.relationships.streamingLinks.links.related);
 
   }
 
-  Future<StreamingData> fetchStreamingData() async{
+  Future<StreamingData> fetchStreamingData(String StreamingLink) async{
 
     http.Response response;
 
-    if(widget.anime.relationships.streamingLinks.links.related.contains("https://www.kitsu.io/api/edge")) {
+    if(StreamingLink.contains("kitsu.io/api/edge")) {
+      print('This is with full link:' +StreamingLink);
       response =
-      await http.get(widget.anime.relationships.streamingLinks.links.related);
+      await http.get(StreamingLink);
     }
 
     else {
+      print('Does not have full link so we add it below');
       response = await http.get("https://www.kitsu.io/api/edge" +
-          widget.anime.relationships.streamingLinks.links.related);
+          StreamingLink);
     }
 
     if(response.statusCode ==200){
@@ -372,6 +465,7 @@ print(widget.anime.relationships.streamingLinks.links.related);
 
 
     }else{
+      print(response.statusCode);
       throw Exception('Failed to load  streaming data');
     }
 
@@ -414,12 +508,20 @@ print(widget.anime.relationships.streamingLinks.links.related);
     }
 
     return
-      Container(padding: EdgeInsets.all(10),
+      Container(padding: EdgeInsets.fromLTRB(10,10,10,10),
         decoration: BoxDecoration(
             color: Color(0xffEDF1F5),
             borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: Color(0xffD0021B))
+            border: Border.all(color: Color(0xffD0021B)),
+            boxShadow: [
+              BoxShadow( color: Colors.black.withOpacity(0.15),
+                spreadRadius: 3,
+                blurRadius: 2,
+                offset: Offset(0, 3),
+
+              )]
         ),
+
         child:secondHalf.isEmpty? RichText(
           text: TextSpan(text: "Synopsis: ",style: TextStyle(color: Color(0xffD0021B),fontSize:18,fontWeight: FontWeight.bold ),
               children:<TextSpan>[
@@ -463,29 +565,30 @@ print(widget.anime.relationships.streamingLinks.links.related);
   }
 
 
-  ImageProvider coverImage(){
+  ImageProvider coverImage(CoverImage animeCoverImage){
 
-    NetworkImage returnedImage ;
+    NetworkImage returnedImage;
     ImageProvider placeholderImage;
 
-    if(widget.anime.attributes.coverImage==null|| widget.anime.attributes.coverImage.original == null){
+    if(animeCoverImage==null){
       placeholderImage = Image.asset("assets/images/nullCoverImage.jpg").image;
-      return Image.asset("assets/images/nullCoverImage.jpg").image;
+      return placeholderImage;
     }
 
-    else if(widget.anime.attributes.coverImage.original == null){
+    else if(animeCoverImage.original == null){
       placeholderImage = Image.asset("assets/images/nullCoverImage.jpg").image ;
       return placeholderImage;
 
     }
 
-    else if((returnedImage = NetworkImage(widget.anime.attributes.coverImage.original)) == null){
+    else if((returnedImage = NetworkImage(animeCoverImage.original)) == null){
       placeholderImage = Image.asset("assets/images/nullCoverImage.jpg").image ;
       return placeholderImage;
     }
+
 
     else
-     return NetworkImage(widget.anime.attributes.coverImage.original);
+     return NetworkImage(animeCoverImage.original);
 
 
   }

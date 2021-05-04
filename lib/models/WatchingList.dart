@@ -1,7 +1,9 @@
 
-import 'file:///C:/Users/rober/AndroidStudioProjects/graphqltutorial/lib/models/Anime.dart';
 
-  class WatchingList{
+
+import 'Anime.dart';
+
+class WatchingList{
     List<Anime> watching;
     bool empty;
 

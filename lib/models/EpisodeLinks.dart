@@ -1,7 +1,7 @@
 
-import 'file:///C:/Users/rober/AndroidStudioProjects/graphqltutorial/lib/models/Links.dart';
+
 import 'package:json_annotation/json_annotation.dart';
-import 'StreamingLinks.dart';
+import 'Links.dart';
 part 'EpisodeLinks.g.dart';
 
 
